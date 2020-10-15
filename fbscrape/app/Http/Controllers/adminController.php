@@ -13,35 +13,39 @@ class adminController extends Controller
     public function index(Request $request)
     {
         if (Session('acc_id') != null) {
-            //$books = Brand_ajax::latest()->get();
-            $books = Job::select()->orderBy('id', 'DESC')->get();
-            if ($request->ajax()) {
-                return DataTables::of($books)
-                    ->addIndexColumn()
-                    ->addColumn('checkbox', function ($books) {
-                        return '<div style="text-align:center" ><input type="checkbox" id="master" name="checkAll" class="checkSingle" data-id="' . $books->id . '"></div>';
-                    })
-                    ->addColumn('testcol', function ($books) {
-                        return '<textarea class="form-control" id="exampleFormControlTextarea1" rows="3" width="150px">' . $books->post_desc . '</textarea>';
-                    })
-                    ->addColumn('status', function ($books) {
-                        if ($books->status == 0)
-                            return '<a href="#" data-id="' . $books->id . '" data-original-title="displayactive" class="edit btn btn-success btn-sm display">Display</a>';
-                        else
-                            return '<a href="#" data-id="' . $books->id . '" data-original-title="hideactive" class="edit btn btn-secondary btn-sm hide">Hide</a>';
-                    })
-                    ->addColumn('action', function ($row) {
-                        //                    javascript:void(0) được sử dụng để ngăn trình duyệt chuyển tiếp người dùng sang trang khác. Ngoài việc sử dụng href="javascript:void(0)" bạn cũng có thể sử dụng href="#" để thực hiện cùng một mục đích.
-                        $btn = '<a href="#" data-toggle="tooltip"  data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook">Edit</a>';
+            if (Session('acc_level') == 1) {
+                //$books = Brand_ajax::latest()->get();
+                $books = Job::select()->orderBy('id', 'DESC')->get();
+                if ($request->ajax()) {
+                    return DataTables::of($books)
+                        ->addIndexColumn()
+                        ->addColumn('checkbox', function ($books) {
+                            return '<div style="text-align:center" ><input type="checkbox" id="master" name="checkAll" class="checkSingle" data-id="' . $books->id . '"></div>';
+                        })
+                        ->addColumn('testcol', function ($books) {
+                            return '<textarea class="form-control" id="exampleFormControlTextarea1" rows="3" width="150px">' . $books->post_desc . '</textarea>';
+                        })
+                        ->addColumn('status', function ($books) {
+                            if ($books->status == 0)
+                                return '<a href="#" data-id="' . $books->id . '" data-original-title="displayactive" class="edit btn btn-success btn-sm display">Display</a>';
+                            else
+                                return '<a href="#" data-id="' . $books->id . '" data-original-title="hideactive" class="edit btn btn-secondary btn-sm hide">Hide</a>';
+                        })
+                        ->addColumn('action', function ($row) {
+                            //                    javascript:void(0) được sử dụng để ngăn trình duyệt chuyển tiếp người dùng sang trang khác. Ngoài việc sử dụng href="javascript:void(0)" bạn cũng có thể sử dụng href="#" để thực hiện cùng một mục đích.
+                            $btn = '<a href="#" data-toggle="tooltip"  data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook">Edit</a>';
 
-                        $btn = $btn . ' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="' . $row->id . '" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</a>';
+                            $btn = $btn . ' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="' . $row->id . '" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</a>';
 
-                        return $btn;
-                    })
-                    ->rawColumns(['testcol', 'status', 'action', 'checkbox'])
-                    ->make(true);
+                            return $btn;
+                        })
+                        ->rawColumns(['testcol', 'status', 'action', 'checkbox'])
+                        ->make(true);
+                }
+                return view('admin.edit_table', compact('books'));
+            } else {
+                return Redirect::to('/diagram');
             }
-            return view('admin.edit_table', compact('books'));
         } else
             return Redirect::to('/login');
     }
@@ -111,13 +115,17 @@ class adminController extends Controller
 
     public function multidelpost($id)
     {
-        $ids = explode(",", $id);
-        foreach ($ids as $value) {
-            Job::destroy($value);
+        if (Session('acc_level') == 1) {
+            $ids = explode(",", $id);
+            foreach ($ids as $value) {
+                Job::destroy($value);
+            }
+            return response()->json([
+                'del' => $ids
+            ]);
+        }else{
+            return Redirect::to('/');
         }
-        return response()->json([
-            'del' => $ids
-        ]);
 
         // $res = Job::destroy($id);
         // if ($res) {

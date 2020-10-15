@@ -18,11 +18,21 @@ class accoutController extends Controller
 
         $result = DB::table('users')->where('email', $email)->where('password', $password)->first();
         if ($result) {
-            Session::put('acc_name', $result->name);
-            Session::put('acc_id', $result->id);
-            echo "<script>alert('Đăng nhập thành công!');
-                window.location.href='admin-jobhirring';
+            if ($result->isAdmin == 1) {
+                Session::put('acc_name', $result->name);
+                Session::put('acc_id', $result->id);
+                Session::put('acc_level', $result->isAdmin);
+                echo "<script>alert('Đăng nhập thành công!');
+                window.location.href='admin-jobhiring';
                 </script>";
+            }else{
+                Session::put('acc_name', $result->name);
+                Session::put('acc_id', $result->id);
+                Session::put('acc_level', $result->isAdmin);
+                echo "<script>alert('Đăng nhập thành công!');
+                window.location.href='diagram';
+                </script>";
+            }
         } else {
             // return view('login', compact('request'));
             // return Redirect::to('/login');
@@ -38,9 +48,10 @@ class accoutController extends Controller
     {
         Session::forget('acc_name');
         Session::forget('acc_id');
+        Session::forget('acc_level');
         //        
         //        Session::put('admin_name', null);
         //        Session::put('admin_id', null);
-        return Redirect::to('/');
+        return Redirect::to('/login');
     }
 }

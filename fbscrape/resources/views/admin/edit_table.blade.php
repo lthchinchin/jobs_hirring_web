@@ -31,12 +31,12 @@
 </style>
 <div class="container-fluid">
     <div class="text-center" style="margin: 20px 0px 20px 0px;">
-        <span class="text-secondary">Admin Control Table</span>
+        <span class="text-secondary"><h3>Admin Control Table</h3></span>
     </div>
     <div class="container-fluid">
         <div class="row">
-            <h4 class="one">Jobs hirring</h4>
-            <button class="btn btn-info ml-auto" id="createNewPost">Create job hirring</button>
+            <h4 class="one">Jobs hiring</h4>
+            <button class="btn btn-info ml-auto" id="createNewPost">Create job hiring</button>
             <button class="btn btn-danger ml-auto" id="deleteMultiple">Delete Multiple</button>
         </div>
     </div>
@@ -132,8 +132,6 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-
-    
 </script>
 
 
@@ -154,7 +152,7 @@
         var table = $('#dataTable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ url('/admin-jobhirring') }}",
+            ajax: "{{ url('/admin-jobhiring') }}",
             columns: [{
                     data: 'DT_RowIndex',
                     name: 'DT_RowIndex'
@@ -209,56 +207,56 @@
         });
 
         $("#checkedAll").change(function() {
-        if (this.checked) {
-            $(".checkSingle").each(function() {
-                this.checked = true;
-            });
-        } else {
-            $(".checkSingle").each(function() {
-                this.checked = false;
-            });
-        }
-    });
-
-    $(".checkSingle").click(function() {
-        if ($(this).is(":checked")) {
-            var isAllChecked = 0;
-
-            $(".checkSingle").each(function() {
-                if (!this.checked)
-                    isAllChecked = 1;
-            });
-
-            if (isAllChecked == 0) {
-                $("#checkedAll").prop("checked", true);
-            }
-        } else {
-            $("#checkedAll").prop("checked", false);
-        }
-    });
-
-    //multiple delete
-
-    $("#deleteMultiple").click(function() { 
-        var allVals = [];
-        $(".checkSingle:checked").each(function() {
-            allVals.push($(this).attr('data-id'));
-        });
-        console.log(allVals);
-        if (allVals.length != 0) {
-            var result = confirm("Are You sure want to delete " + allVals.length + " entries?");
-            if (result) {
-                    $.get("{{ url('/multidel') }}" + '/' + allVals, function(data) {                 
-                    alert(allVals.length + " entries are deleted");
-                    table.draw();
-                    console.log(data);
+            if (this.checked) {
+                $(".checkSingle").each(function() {
+                    this.checked = true;
+                });
+            } else {
+                $(".checkSingle").each(function() {
+                    this.checked = false;
                 });
             }
-        } else {
-            alert("There aren't any entry, please choose.");
-        }
+        });
 
-    });
+        $(".checkSingle").click(function() {
+            if ($(this).is(":checked")) {
+                var isAllChecked = 0;
+
+                $(".checkSingle").each(function() {
+                    if (!this.checked)
+                        isAllChecked = 1;
+                });
+
+                if (isAllChecked == 0) {
+                    $("#checkedAll").prop("checked", true);
+                }
+            } else {
+                $("#checkedAll").prop("checked", false);
+            }
+        });
+
+        //multiple delete
+
+        $("#deleteMultiple").click(function() {
+            var allVals = [];
+            $(".checkSingle:checked").each(function() {
+                allVals.push($(this).attr('data-id'));
+            });
+            console.log(allVals);
+            if (allVals.length != 0) {
+                var result = confirm("Are You sure want to delete " + allVals.length + " entries?");
+                if (result) {
+                    $.get("{{ url('/multidel') }}" + '/' + allVals, function(data) {
+                        alert(allVals.length + " entries are deleted");
+                        table.draw();
+                        console.log(data);
+                    });
+                }
+            } else {
+                alert("There aren't any entry, please choose.");
+            }
+
+        });
 
         // create new book new book_id
         $('#createNewPost').click(function() {
@@ -272,11 +270,19 @@
         // create or update book
         $('#saveBtn').click(function(e) {
             e.preventDefault();
-            $(this).html('Saving..');
+            
+            var company_name = $('#companyname').val();
+            var company_mail = $('#companymail').val();
 
+            // Kiểm tra dữ liệu có null hay không
+            if ($.trim(company_name) == '' || $.trim(company_mail) == '') {
+                alert('Bạn phải nhập company name & company mail');
+                return false;
+            }
+            $(this).html('Saving..');
             $.ajax({
                 data: $('#bookForm').serialize(),
-                url: "{{ url('/admin-jobhirring') }}",
+                url: "{{ url('/admin-jobhiring') }}",
                 type: "POST",
                 dataType: 'json',
                 success: function(data) {
@@ -298,9 +304,9 @@
             var book_id = $(this).data('id');
             console.log('id:', book_id);
             //gui den va tra ve data
-            $.get("{{ url('/admin-jobhirring') }}" + '/' + book_id + '/edit', function(data) {
+            $.get("{{ url('/admin-jobhiring') }}" + '/' + book_id + '/edit', function(data) {
 
-                $('#modelHeading').html("Edit Job hirring");
+                $('#modelHeading').html("Edit Job hiring");
                 $('#saveBtn').html('Update');
                 $('#ajaxModel').modal('show');
                 $('#book_id').val(data.id);
@@ -353,7 +359,7 @@
             if (result) {
                 $.ajax({
                     type: "DELETE",
-                    url: "{{ url('/admin-jobhirring') }}" + '/' + book_id,
+                    url: "{{ url('/admin-jobhiring') }}" + '/' + book_id,
                     success: function(data) {
                         console.log('Success:', data);
                         table.draw();

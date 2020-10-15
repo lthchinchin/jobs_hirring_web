@@ -8,7 +8,7 @@
 
 <div class="container-fluid">
     <br>
-    <h2 class="text-center">Diagram of IT jobs hirring</h2>
+    <h2 class="text-center">Diagram of IT jobs hiring</h2>
     <br>
     <!-- <p>This part is inside a .container class.</p>  -->
     <div class="row">

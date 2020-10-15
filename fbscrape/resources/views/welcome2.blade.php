@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>IT job hirring</title>
+    <title>IT job hiring</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -12,14 +12,17 @@
     <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
 </head>
 <style>
-    
-    #f {
-        margin-top: 20px;
-        background-color: #2e3d4d!important;
-        
+    #adname:hover {
+        background-color: #93a9c4;
     }
-    #nav{
-        background-color: #2e3d4d!important;
+
+    #f {
+        margin-top: 200px;
+        background: #2e3d4d !important;
+    }
+
+    #nav {
+        background-color: #2e3d4d !important;
     }
 </style>
 
@@ -27,36 +30,51 @@
 
     <nav id="nav" class="navbar navbar-expand-sm bg-dark navbar-dark">
         <!-- Brand -->
-        <a class="navbar-brand" href="{{URL::to('/')}}">Logo</a>
+        <a href="{{URL::to('/')}}"><img id="img_product" src="{{asset('public/logo.png')}}" alt="logo_img" width="50px" height="50px" /></a>
 
         <!-- Links -->
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="{{URL::to('/dog')}}">Relax</a>
+                <!-- <a class="nav-link" href="{{URL::to('/dog')}}">Relax</a> -->
             </li>
             <!-- Dropdown -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-                    Diagram
-                </a>
+                <a class="nav-link dropdown-toggle" href="" id="navbardrop" data-toggle="dropdown">Diagram</a>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="{{URL::to('/diagram')}}">Program Language</a>
-                    <a class="dropdown-item" href="#">Link 2</a>
-                    <a class="dropdown-item" href="#">Link 3</a>
+                    <a class="dropdown-item" href="{{URL::to('/diagram2')}}">Company</a>
                 </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{URL::to('/topic')}}">Topic</a>
+            </li>
+            <li class="nav-item">
+                <a class="disabled nav-link" id="accname" href="">{{ Session::get('acc_name')}}</a>
             </li>
             <?php
             if (Session('acc_id') != null) {
+                if (Session('acc_level') == 1) {
             ?>
-                <li class="nav-item">
-                    <a class="disabled nav-link" id="accname" href="">{{ Session::get('acc_name')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{URL::to('/admin-jobhirring')}}">Manage</a>
-                </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="navbardrop" data-toggle="dropdown">Manage</a>
+                        <div class="dropdown-menu">
+                            <a id="adname" class="dropdown-item" style="text-align: center;" href="#">{{Session::get('acc_name')}}</a>
+                            <a class="dropdown-item" href="{{URL::to('/admin-jobhiring')}}">Data</a>
+                            <a class="dropdown-item" href="{{URL::to('/admin-account')}}">Users Account</a>
+                        </div>
+                    </li>
+                <?php
+                }
+                ?>
                 <li class="nav-item">
                     <a class="nav-link" href="{{URL::to('/logout')}}">Logout</a>
                 </li>
+            <?php
+            } else {
+            ?>
+                <!-- <li class="nav-item">
+                    <a class="nav-link" href="{{URL::to('/login')}}">Login</a>
+                </li> -->
             <?php
             }
             ?>
@@ -74,6 +92,8 @@
     <div class="container text-center">
         <small>Copyright &copy; Your Website</small>
     </div>
+
+
 </footer>
 
 

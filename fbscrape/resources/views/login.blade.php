@@ -19,7 +19,7 @@ $request;
     html {
         height: 100%;
         background-repeat: no-repeat;
-        background-image: linear-gradient(rgb(104, 145, 162), rgb(12, 97, 33));
+        background-image: linear-gradient(rgb(104, 145, 162),rgb(204, 255, 153));
     }
 
     .card-container.card {
@@ -139,7 +139,7 @@ $request;
     .btn.btn-signin:hover,
     .btn.btn-signin:active,
     .btn.btn-signin:focus {
-        background-color: rgb(12, 97, 33);
+        background-color: rgb(28, 102, 176);
     }
 
     .forgot-password {
@@ -262,11 +262,5 @@ $request;
         </a>
     </div><!-- /card-container -->
 </div><!-- /container -->
-<div class="container" style="text-align: center">
-    <h3>Navbar With Dropdown</h3>
-    <p>This example adds a dropdown menu in the navbar.</p>
-    <p>This example adds a dropdown menu in the navbar.</p>
-    <p>This example adds a dropdown menu in the navbar.</p>
-    <p>This example adds a dropdown menu in the navbar.</p>
-</div>
+
 @endsection
