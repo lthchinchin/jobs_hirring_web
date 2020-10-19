@@ -25,14 +25,7 @@ $serial = 1;
     </div>
     <div class="row">
         <div class="col-sm-2">
-            <?php
-            if (Session('acc_id') == null || Session('acc_level') != 1) {
-            ?>
-                <img id='dogimg' src="{{$dog->url}}" height="350px" width=250px />
-                <!-- <img id='dogimg2' src="{{$dog->url}}" height="350px" width=250px /> -->
-            <?php
-            }
-            ?>
+
         </div>
         <div class="col-sm-8">
             <table id="dataTable" class="table table-hover">
@@ -76,14 +69,7 @@ $serial = 1;
             </table>
         </div>
         <div class="col-sm-2">
-            <?php
-            if (Session('acc_id') == null || Session('acc_level') != 1) {
-            ?>
-                <img id='dogimg' src="{{$dog2->url}}" height="350px" width=250px />
-                <!-- <img id='dogimg2' src="{{$dog2->url}}" height="350px" width=250px /> -->
-            <?php
-            }
-            ?>
+
         </div>
     </div>
 </div>

@@ -58,7 +58,7 @@ class AccountmanageController extends Controller
 
                             return $btn;
                         })
-                        ->rawColumns(['action', 'role' ,'checkbox'])
+                        ->rawColumns(['action', 'role', 'checkbox'])
                         ->make(true);
                 }
                 return view('admin.edit_account', compact('users'));
@@ -87,26 +87,65 @@ class AccountmanageController extends Controller
      */
     public function store(Request $request)
     {
-        $count = DB::table('users')->select('email')->where('email', '=', $request->email)->count();
-        if ($count != 1) {
-            DB::table('users')->insert(
-                [
-                    'name' => $request->username,
-                    'email' => $request->email,
-                    'password' => MD5($request->password),
-                    'isAdmin' => $request->level
-                ]
-            );
-            // return response
-            $response = [
-                'success' => true,
-                'message' => 'insert successfully.',
-            ];
+        if ($request->user_id != null) {
+            if (isset($request->newpassword) && $request->newpassword != null) {
+                $check = DB::table('users')
+                    ->select('password')
+                    ->where('id', $request->user_id)
+                    ->where('password', MD5($request->password))
+                    ->count();
+                if ($check == 1) {
+                    DB::table('users')
+                        ->where('id', $request->user_id)
+                        ->update([
+                            'name' => $request->username,
+                            'password' => MD5($request->newpassword)
+                        ]);
+                    $response = [
+                        'success' => true,
+                        'message' => 'Change password successfully.',
+                    ];
+                }
+                else{
+                    $response = [
+                        'success' => true,
+                        'message' => 'Change password fail, Old password incorrect.',
+                    ];
+                }
+            } else {
+                DB::table('users')
+                    ->where('id', $request->user_id)
+                    ->update([
+                        'name' => $request->username,
+                        'isAdmin' => $request->level
+                    ]);
+                $response = [
+                    'success' => true,
+                    'message' => 'update successfully.',
+                ];
+            }
         } else {
-            $response = [
-                'success' => true,
-                'message' => 'email da ton tai hay chon email khac.',
-            ];
+            $count = DB::table('users')->select('email')->where('email', '=', $request->email)->count();
+            if ($count != 1) {
+                DB::table('users')->insert(
+                    [
+                        'name' => $request->username,
+                        'email' => $request->email,
+                        'password' => MD5($request->password),
+                        'isAdmin' => $request->level
+                    ]
+                );
+                // return response
+                $response = [
+                    'success' => true,
+                    'message' => 'Tạo tài khoản thành công.',
+                ];
+            } else {
+                $response = [
+                    'success' => true,
+                    'message' => 'Email đã tồn tại chọn email khác.',
+                ];
+            }
         }
         return response()->json($response, 200);
     }
@@ -119,7 +158,6 @@ class AccountmanageController extends Controller
      */
     public function show($id)
     {
-        //
     }
 
     /**
@@ -130,7 +168,8 @@ class AccountmanageController extends Controller
      */
     public function edit($id)
     {
-        //
+        $user = DB::table('users')->where('id', '=', $id)->first();
+        return response()->json($user, 200);
     }
 
     /**
@@ -153,6 +192,26 @@ class AccountmanageController extends Controller
      */
     public function destroy($id)
     {
-        //
+        DB::table('users')->where('id', '=', $id)->delete();
+        $response = [
+            'success' => true,
+            'message' => 'delete successfully.',
+        ];
+        return response()->json($response, 200);
+    }
+
+    public function multidelpost($id)
+    {
+        if (Session('acc_level') == 1) {
+            $ids = explode(",", $id);
+            foreach ($ids as $value) {
+                DB::table('users')->where('id', '=', $value)->delete();
+            }
+            return response()->json([
+                'del' => $ids
+            ]);
+        } else {
+            return Redirect::to('/');
+        }
     }
 }

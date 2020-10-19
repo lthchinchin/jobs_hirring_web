@@ -1,8 +1,11 @@
 <?php
 
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use \Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -18,6 +21,15 @@ Route::get('/welcome2', function () {
     return view('welcome2');
 });
 
+Route::get('/change-password', function () {
+    if(Session('acc_id')!=null){
+        return view('user.change_password');
+    }else{
+        return Redirect::to('/topic');
+    }
+    
+});
+
 Route::get('/topic','topicController@index');
 Route::get('/topic-load','topicController@load');
 Route::get('/topic-like/{id_topic}/{id_liker}','topicController@like');
@@ -25,6 +37,7 @@ Route::get('/topic-{id}','topicController@detail');
 Route::post('/topic-create','topicController@create');
 Route::post('/topic-cmt','topicController@comment');
 Route::get('/topic-del/{id}/{acc}','topicController@deltopic');
+Route::get('/cmt-del/{id}/{acc}','topicController@delcmt');
 Route::get('/topic-edit/{id}','topicController@edittopic');
 Route::get('/loadchat', function () {
     // return view('user.loadchat');
@@ -70,5 +83,6 @@ Route::get('/diagram2', 'chartController@diagramshow2');
 Route::get('/diagram2-{cn}', 'chartController@diagramshowplus2');
 Route::resource('/admin-jobhiring', 'adminController');
 Route::resource('/admin-account', 'AccountmanageController');
+Route::get('/multidel-acc/{id}', 'AccountmanageController@multidelpost');
 
 // Route::resource('brandAjax','BrandAjaxController');

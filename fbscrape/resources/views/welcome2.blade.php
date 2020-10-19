@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
     <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script> -->
     <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
 </head>
@@ -17,7 +18,7 @@
     }
 
     #f {
-        margin-top: 200px;
+        margin-top: 150px;
         background: #2e3d4d !important;
     }
 
@@ -48,6 +49,11 @@
             <li class="nav-item">
                 <a class="nav-link" href="{{URL::to('/topic')}}">Topic</a>
             </li>
+            <?php if (Session('acc_id') == null) { ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{URL::to('/login')}}">Login</a>
+                </li>
+            <?php } ?>
             <li class="nav-item">
                 <a class="disabled nav-link" id="accname" href="">{{ Session::get('acc_name')}}</a>
             </li>
@@ -61,31 +67,28 @@
                             <a id="adname" class="dropdown-item" style="text-align: center;" href="#">{{Session::get('acc_name')}}</a>
                             <a class="dropdown-item" href="{{URL::to('/admin-jobhiring')}}">Data</a>
                             <a class="dropdown-item" href="{{URL::to('/admin-account')}}">Users Account</a>
+                            <a class="dropdown-item" href="{{URL::to('/logout')}}"><i class="fas fa-sign-out-alt"></i> Logout</a>
                         </div>
                     </li>
                 <?php
-                }
+                } else {
                 ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{URL::to('/logout')}}">Logout</a>
-                </li>
+                    <li class="nav-item">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="" id="navbardrop" data-toggle="dropdown"></a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{{URL::to('/change-password')}}" id="myacc">My Account</a>
+                            <a class="dropdown-item" href="{{URL::to('/logout')}}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </li>
+                    </li>
             <?php
-            } else {
-            ?>
-                <!-- <li class="nav-item">
-                    <a class="nav-link" href="{{URL::to('/login')}}">Login</a>
-                </li> -->
-            <?php
+                }
             }
             ?>
         </ul>
     </nav>
-    <br>
 
-    <!-- <div class="container">
-        <h3>Navbar With Dropdown</h3>
-        <p>This example adds a dropdown menu in the navbar.</p>
-    </div> -->
     @yield('content')
 </body>
 <footer id="f" class="py-4 bg-dark text-white-50">

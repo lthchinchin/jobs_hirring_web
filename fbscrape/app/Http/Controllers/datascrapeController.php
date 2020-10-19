@@ -11,21 +11,22 @@ class datascrapeController extends Controller
     {
         $job = DB::table('tbl_job_hirring')->orderBy('id', 'DESC')->where('status', '=', 0)->get();
 
-        if (Session('acc_id') == null || Session('acc_level') != 1) {
-            $txtdog = file_get_contents("https://random.dog/woof.json");
-            $txtdog2 = file_get_contents("https://random.dog/woof.json");
-            // while (strpos($txtdog, '.mp4') == true) {
-            //     $txtdog = file_get_contents("https://random.dog/woof.json");
-            // }
-            // while (strpos($txtdog2, '.mp4') == true) {
-            //     $txtdog2 = file_get_contents("https://random.dog/woof.json");
-            // }
-            $dog = json_decode($txtdog);
-            $dog2 = json_decode($txtdog2);
-            return view('user.show_data', compact('dog', 'dog2', 'job'));
-        } else {
-            return view('user.show_data', compact('job'));
-        }
+        // if (Session('acc_id') == null || Session('acc_level') != 1) {
+        //     $txtdog = file_get_contents("https://random.dog/woof.json");
+        //     $txtdog2 = file_get_contents("https://random.dog/woof.json");
+        //     // while (strpos($txtdog, '.mp4') == true) {
+        //     //     $txtdog = file_get_contents("https://random.dog/woof.json");
+        //     // }
+        //     // while (strpos($txtdog2, '.mp4') == true) {
+        //     //     $txtdog2 = file_get_contents("https://random.dog/woof.json");
+        //     // }
+        //     $dog = json_decode($txtdog);
+        //     $dog2 = json_decode($txtdog2);
+        //     return view('user.show_data', compact('dog', 'dog2', 'job'));
+        // } else {
+        //     return view('user.show_data', compact('job'));
+        // }
+        return view('user.show_data', compact('job'));
     }
     public function login()
     {

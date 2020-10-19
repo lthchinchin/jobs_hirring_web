@@ -5,9 +5,21 @@ if (isset($request))
     echo gettype($request) . "\n";
 $request;
 ?>
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<!-- <meta name="csrf-token" content="{{ csrf_token() }}"> -->
+<!-- <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
+<link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+<!--    <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"> repeat sorting icon-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+
 <style>
     /*
  * Specific styles of signin component
@@ -19,7 +31,7 @@ $request;
     html {
         height: 100%;
         background-repeat: no-repeat;
-        background-image: linear-gradient(rgb(104, 145, 162),rgb(204, 255, 153));
+        background-image: linear-gradient(rgb(104, 145, 162), rgb(204, 255, 153));
     }
 
     .card-container.card {
@@ -257,10 +269,141 @@ $request;
             </div>
             <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit">Sign in</button>
         </form><!-- /form -->
-        <a href="#" class="forgot-password">
+        <!-- <a href="#" class="forgot-password">
             Forgot the password?
+        </a> -->
+        <a id="register" href="#" class="forgot-password">
+            You haven't an account?
         </a>
+        <!-- <button type="button" class="btn btn-primary" id='register'>show modal</button> -->
     </div><!-- /card-container -->
 </div><!-- /container -->
 
+<div class="modal fade" id="ajaxModel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modelHeading">Create Account</h4>
+            </div>
+            <div class="modal-body">
+                <form id="Form" name="Form" class="form-horizontal">
+                    {{csrf_field()}}
+                    <input type="hidden" name="user_id" id="user_id">
+                    <div class="form-group">
+                        <label for="name" class="col-sm-4 control-label">User Name</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter user name" value="" maxlength="50" required autocomplete="off">
+                            <p id='valid_username' style='color: red;'></p>
+                        </div>
+                    </div>
+                    <div class="form-group" id="form-group-email">
+                        <label for="name" class="col-sm-4 control-label">Email</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="email" name="email" placeholder="Enter email" value="" maxlength="50" required autocomplete="off">
+                            <p id='valid_email' style='color: red;'></p>
+                        </div>
+                    </div>
+                    <div class="form-group" id="form-group-password">
+                        <label for="name" class="col-sm-4 control-label">Password</label>
+                        <div class="col-sm-12">
+                            <input type="password" class="form-control" id="password" name="password" value="" maxlength="50" required autocomplete="off">
+                            <p id='valid_password' style='color: red;'></p>
+                        </div>
+                    </div>
+                    <div class="form-group" id="form-group-repassword">
+                        <label for="name" class="col-sm-4 control-label">RePassword</label>
+                        <div class="col-sm-12">
+                            <input type="password" class="form-control" id="repassword" name="repassword" value="" maxlength="50" required autocomplete="off">
+                            <p id='valid_repassword' style='color: red;'></p>
+                        </div>
+                    </div>
+                    <input type="hidden" name="level" value=0>
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" class="btn btn-primary" id="saveBtn">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // $.ajaxSetup({
+    //     headers: {
+    //         //jQuery add CSRF token to all $.post() requests' data
+    //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //     }
+    // });
+
+
+    $('#register').click(function() {
+        console.log('nhan nut roi');
+        $('#ajaxModel').modal('show');
+    });
+
+    function validateEmail(email) {
+        const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(email);
+    }
+
+
+    $('#saveBtn').click(function(e) {
+        e.preventDefault();
+        var username = $('#username').val();
+        if (username == '') {
+            $('#valid_username').html('<small>Không được chừa trống&nbsp<i class="fas fa-times"></i></small>');
+            return false;
+        }
+        var email = $('#email').val();
+        if (email == '') {
+            $('#valid_email').html('<small>Không được chừa trống&nbsp<i class="fas fa-times"></i></small>');
+            return false;
+        } else {
+            if (validateEmail(email) == false) {
+                $('#valid_email').html('<small>Example:&nbspnobita@gmail.com&nbsp<i class="fas fa-times"></i></small>');
+                return false;
+            }
+        }
+        var password = $('#password').val();
+        if (password == '') {
+            $('#valid_password').html('<small>Không được chừa trống&nbsp<i class="fas fa-times"></i></small>');
+            return false;
+        }
+        var repassword = $('#repassword').val();
+        if (repassword == '') {
+            $('#valid_repassword').html('<small>Không được chừa trống&nbsp<i class="fas fa-times"></i></small>');
+            return false;
+        } else {
+            if (password != repassword) {
+                $('#valid_repassword').html('<small>Không trùng khớp&nbsp<i class="fas fa-times"></i></small>');
+                return false;
+            }
+        }
+
+        $(this).html('Saving..');
+        $.ajax({
+            data: $('#Form').serialize(),
+            url: "{{ url('/admin-account') }}",
+            type: "POST",
+            dataType: 'json',
+            success: function(data) {
+                $('#Form').trigger("reset");
+                $('#ajaxModel').modal('hide');
+                alert(data.message);
+                console.log('Response:', data);
+                $('#saveBtn').html('Save');
+                $('#valid_name').html('');
+                $('#valid_email').html('');
+                $('#valid_password').html('');
+                $('#valid_repassword').html('');
+
+            },
+            error: function(data) {
+                console.log('Error:', data);
+                $('#saveBtn').html('Save');
+            }
+        });
+
+    });
+</script>
 @endsection

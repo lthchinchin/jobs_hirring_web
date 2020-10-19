@@ -10,6 +10,8 @@
 <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+
 <style>
     #sttDisplay {
         color: greenyellow;
@@ -74,18 +76,28 @@
                         <label for="name" class="col-sm-4 control-label">User Name</label>
                         <div class="col-sm-12">
                             <input type="text" class="form-control" id="username" name="username" placeholder="Enter user name" value="" maxlength="50" required="" autocomplete="off">
+                            <p id='valid_username' style='color: red;'></p>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="form-group-email">
                         <label for="name" class="col-sm-4 control-label">Email</label>
                         <div class="col-sm-12">
                             <input type="text" class="form-control" id="email" name="email" placeholder="Enter email" value="" maxlength="50" required="" autocomplete="off">
+                            <p id='valid_email' style='color: red;'></p>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="form-group-password">
                         <label for="name" class="col-sm-4 control-label">Password</label>
                         <div class="col-sm-12">
                             <input type="password" class="form-control" id="password" name="password" value="" maxlength="50" required="" autocomplete="off">
+                            <p id='valid_password' style='color: red;'></p>
+                        </div>
+                    </div>
+                    <div class="form-group" id="form-group-repassword">
+                        <label for="name" class="col-sm-4 control-label">RePassword</label>
+                        <div class="col-sm-12">
+                            <input type="password" class="form-control" id="repassword" name="repassword" value="" maxlength="50" required="" autocomplete="off">
+                            <p id='valid_repassword' style='color: red;'></p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -166,6 +178,11 @@
         });
 
 
+        function validateEmail(email) {
+            const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(email);
+        }
+
 
         $('#createNewAcc').click(function() {
             $('#ajaxModel').modal('show');
@@ -174,32 +191,151 @@
         $('#saveBtn').click(function(e) {
             e.preventDefault();
             var username = $('#username').val();
+            if (username == '') {
+                $('#valid_username').html('<small>Không được chừa trống&nbsp<i class="fas fa-times"></i></small>');
+                return false;
+            }
             var email = $('#email').val();
-            var password = $('#password').val();
-            if ($.trim(username) == '' || $.trim(email) == '' || $.trim(password) == '') {
-                alert('Bạn không được chừa trống !');
+            if (email == '') {
+                $('#valid_email').html('<small>Không được chừa trống&nbsp<i class="fas fa-times"></i></small>');
                 return false;
             } else {
-                $(this).html('Saving..');
+                if (validateEmail(email) == false) {
+                    $('#valid_email').html('<small>Example:&nbspnobita@gmail.com&nbsp<i class="fas fa-times"></i></small>');
+                    return false;
+                }
+            }
+            var password = $('#password').val();
+            if (password == '') {
+                $('#valid_password').html('<small>Không được chừa trống&nbsp<i class="fas fa-times"></i></small>');
+                return false;
+            }
+            var repassword = $('#repassword').val();
+            if (repassword == '') {
+                $('#valid_repassword').html('<small>Không được chừa trống&nbsp<i class="fas fa-times"></i></small>');
+                return false;
+            } else {
+                if (password != repassword) {
+                    $('#valid_repassword').html('<small>Không trùng khớp&nbsp<i class="fas fa-times"></i></small>');
+                    return false;
+                }
+            }
+            $(this).html('Saving..');
+            $.ajax({
+                data: $('#Form').serialize(),
+                url: "{{ url('/admin-account') }}",
+                type: "POST",
+                dataType: 'json',
+                success: function(data) {
+                    $('#Form').trigger("reset");
+                    $('#ajaxModel').modal('hide');
+                    table.draw();
+                    console.log('Success:', data);
+                    $('#saveBtn').html('Save');
+                    $('#valid_name').html('');
+                    $('#valid_email').html('');
+                    $('#valid_password').html('');
+                    $('#valid_repassword').html('');
+                },
+                error: function(data) {
+                    console.log('Error:', data);
+                    $('#saveBtn').html('Save');
+                }
+            });
+        });
+        $('body').on('click', '.editAccount', function() {
+            var acc_id = $(this).data('id');
+            console.log('da nhan acc id = ', acc_id);
+            $.ajax({
+                data: $('#Form').serialize(),
+                url: "{{ url('/admin-account') }}" + '/' + acc_id + '/edit',
+                type: "get",
+                dataType: 'json',
+                success: function(data) {
+                    console.log('Success:', data);
+                    $('#modelHeading').html('Edit Account');
+                    $('#saveBtn').html('Update');
+                    $("#form-group-email").hide();
+                    $("#form-group-password").hide();
+                    $("#form-group-repassword").hide();
+                    $('#username').val(data.name);
+                    $('#email').val(data.email);
+                    $('#password').val(data.password);
+                    $('#repassword').val(data.password);
+                    $("#level").val(data.isAdmin).change();
+                    $("#user_id").val(acc_id);
+                    $('#ajaxModel').modal('show');
+                },
+                error: function(data) {
+                    console.log('Error:', data);
+                    $('#saveBtn').html('Save');
+                }
+            });
+        });
+
+        $('body').on('click', '.deleteAccount', function() {
+            var acc_id = $(this).data('id');
+            console.log('da nhan acc id = ', acc_id);
+            var result = confirm("Are You sure want to delete this account?");
+            if (result) {
                 $.ajax({
                     data: $('#Form').serialize(),
-                    url: "{{ url('/admin-account') }}",
-                    type: "POST",
+                    url: "{{ url('/admin-account') }}" + '/' + acc_id,
+                    type: "DELETE",
                     dataType: 'json',
                     success: function(data) {
-                        $('#Form').trigger("reset");
-                        $('#ajaxModel').modal('hide');
+                        console.log('Success delete:', data);
                         table.draw();
-                        console.log('Success:', data);
-                        $('#saveBtn').html('Save');
                     },
                     error: function(data) {
                         console.log('Error:', data);
-                        $('#saveBtn').html('Save');
+
                     }
                 });
             }
         });
+
+        $(".checkSingle").click(function() {
+            if ($(this).is(":checked")) {
+                var isAllChecked = 0;
+
+                $(".checkSingle").each(function() {
+                    if (!this.checked)
+                        isAllChecked = 1;
+                });
+
+                if (isAllChecked == 0) {
+                    $("#checkedAll").prop("checked", true);
+                }
+            } else {
+                $("#checkedAll").prop("checked", false);
+            }
+        });
+
+        //multiple delete
+
+        $("#deleteMultiple").click(function() {
+            var allVals = [];
+            $(".checkSingle:checked").each(function() {
+                allVals.push($(this).attr('data-id'));
+            });
+            console.log(allVals);
+            if (allVals.length != 0) {
+                var result = confirm("Are You sure want to delete " + allVals.length + " entries?");
+                if (result) {
+                    $.get("{{ url('/multidel-acc') }}" + '/' + allVals, function(data) {
+                        alert(allVals.length + " entries are deleted");
+                        table.draw();
+                        console.log(data);
+                    });
+                }
+            } else {
+                alert("There aren't any entry, please choose.");
+            }
+
+        });
+
+
     });
 </script>
 

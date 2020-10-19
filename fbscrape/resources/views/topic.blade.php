@@ -102,10 +102,12 @@ use \Illuminate\Support\Facades\Session;
             </div>
         </div>
         <div class="row justify-content-md-center">
-            <div class="row">
-                <textarea placeholder="Bạn đang nghĩ gì?" style="width: 490px;"></textarea>
-                <button class="btn btn-primary" style="margin-left: 10px;" id="showmodal" type="button">Create</button>
-            </div>
+            <?php if (Session('acc_level') != -1 && Session('acc_level') != -3) { ?>
+                <div class="row">
+                    <textarea placeholder="Bạn đang nghĩ gì?" style="width: 490px;"></textarea>
+                    <button class="btn btn-primary" style="margin-left: 10px;" id="showmodal" type="button">Create</button>
+                </div>
+            <?php } ?>
         </div>
     </div>
     <div id="catlist">
@@ -270,6 +272,33 @@ use \Illuminate\Support\Facades\Session;
         // $('#topics').load('topic-load');
     });
 
+    // del cmt : owner cmt del or owner post del
+    $('#topics').on('click', '#delcmt', function() {
+        var cmt_id = $(this).data('id');
+        var acc_del = $(this).data('acc');
+        console.log('xoa cmt : ' + cmt_id + " | id acc xoa : " + acc_del);
+        var result = confirm("Are You sure want to delete this cmt?");
+        if (result) {
+            $.ajax({
+                data: $('#form').serialize(),
+                url: "{{ url('/cmt-del') }}" + '/' + cmt_id + '/' + acc_del,
+                type: "get",
+                dataType: 'json',
+                success: function(data) {
+                    console.log('Success:', data);
+                    // alert(data.message);
+                    topic_id = $('#tp_id').val();
+                    var loadlink = 'topic-' + topic_id;
+                    $('#topics').load(loadlink);
+                },
+                error: function(data) {
+                    alert("Không thành công!")
+                    console.log('Error:', data);
+                }
+            });
+        }
+    });
+
     //edit
 
     $('#topics').on('click', '#edit', function() {
@@ -292,9 +321,9 @@ use \Illuminate\Support\Facades\Session;
                 $('#mess').val(data.content_topic);
                 $('#saveBtn').html('Update');
                 $('#modelHeading').html('Update Topic');
-                var topicid = "<input type='hidden' id='tp_id' name='id_topic' value='"+topic_id+"'></input>";
-                $("#form").append(topicid); 
-                
+                var topicid = "<input type='hidden' id='tp_id' name='id_topic' value='" + topic_id + "'></input>";
+                $("#form").append(topicid);
+
             },
             error: function(data) {
                 alert("Update Không thành công!")

@@ -63,6 +63,20 @@ class topicController extends Controller
         }
     }
 
+    public function delcmt($id, $acc)
+    {
+        if (Session('acc_level') == 1 || Session('acc_id') == $acc) {
+            DB::table('tbl_comments')->where('id', '=', $id)->delete();
+            $response = [
+                'success' => true,
+                'message' => 'delete cmt successfully.',
+            ];
+            return response()->json($response, 200);
+        } else {
+            return Redirect::to('/topic');
+        }
+    }
+
     public function edittopic($id)
     {
 
@@ -124,23 +138,13 @@ class topicController extends Controller
             'name',
             'content_topic',
             'daytime',
-            DB::raw('count(tbl_likes.id_liker) as likes')
+            DB::raw('count(tbl_likes.id_liker) as likes'),
+            // DB::raw('count(tbl_comments.id) as cmts')
         )
             ->leftjoin('tbl_likes', 'tbl_likes.id_topic', '=', 'tbl_topic.id')
+            // ->leftjoin('tbl_comments', 'tbl_comments.id_topic', '=', 'tbl_topic.id')
             ->join('users', 'users.id', '=', 'tbl_topic.id_user_creator')
             ->groupBy('tbl_topic.id', 'title_topic', 'users.id', 'id_acc', 'name', 'content_topic', 'daytime')->orderBy('tbl_topic.id', 'desc')->get();
-
-        // $topics = DB::table('tbl_topic')->select(
-        //     'tbl_topic.id',
-        //     'id_user_creator',
-        //     'title_topic',
-        //     'content_topic',
-        //     'favourite',
-        //     'daytime',
-        //     DB::raw('count(tbl_likes.id_liker) as likes')
-        // )->leftjoin('tbl_likes', 'tbl_likes.id_topic', '=', 'tbl_topic.id')
-        //     ->groupBy('tbl_topic.id', 'id_user_creator', 'title_topic', 'content_topic', 'favourite', 'daytime',)->orderBy('tbl_topic.id', 'desc')->get();
-        // dd($topics);
 
         $acc_id = Session('acc_id');
         // dd($acc_id);
@@ -171,7 +175,7 @@ class topicController extends Controller
                 if ($topic->id_acc != Session('acc_id'))
                     echo "<button id='del' data-id=$topic->id data-acc=$topic->id_acc style='float: left; margin-left: 10px' class='btn btn-danger btn-sm'><i class='far fa-trash-alt'></i></button>";
             }
-            echo "<h6 style='float: right;color: #ff4845;'>Yêu thích: $topic->likes</h6></dl>";
+            echo "<h6 style='float: right;color: #ff4845;'>$topic->likes Yêu thích </h6></dl>";
         }
     }
 
@@ -188,16 +192,20 @@ class topicController extends Controller
                 'name',
                 'content_topic',
                 'daytime',
-                DB::raw('count(tbl_likes.id_liker) as likes')
+                DB::raw('count(tbl_likes.id_liker) as likes'),
+                // DB::raw('count(tbl_comments.id) as cmts')
             )
                 ->leftjoin('tbl_likes', 'tbl_likes.id_topic', '=', 'tbl_topic.id')
+                // ->leftjoin('tbl_comments', 'tbl_comments.id_topic', '=', 'tbl_topic.id')
                 ->join('users', 'users.id', '=', 'tbl_topic.id_user_creator')
                 ->where('tbl_topic.id', '=', $id)
                 ->groupBy('tbl_topic.id', 'title_topic', 'name', 'content_topic', 'daytime')->orderBy('tbl_topic.id', 'desc')->get();
             // dd($topic);
+
             $comments = DB::table('tbl_comments')
-                ->select('comment', 'daytime_cmt', 'name')
+                ->select('tbl_comments.id', 'tbl_comments.id_user', 'id_user_creator', 'comment', 'daytime_cmt', 'name')
                 ->join('users', 'users.id', '=', 'tbl_comments.id_user')
+                ->join('tbl_topic', 'tbl_topic.id', '=', 'tbl_comments.id_topic')
                 ->where('id_topic', '=', $id)
                 ->get();
             // dd($comments);
@@ -217,20 +225,22 @@ class topicController extends Controller
 
             foreach ($comments as $comment) {
                 echo "<dl>
-                <h4><a style='color: blue;'>$comment->name : </a></h4><div style='margin-left: 10px'><h6 >$comment->comment</h6><small style='color:blue'>$comment->daytime_cmt</small></div>
-        </dl>";
+                <h4><a style='color: blue;'>$comment->name : </a></h4><div style='margin-left: 10px'><h6 >$comment->comment</h6><small style='color:blue'>$comment->daytime_cmt</small></div>";
+                if (Session('acc_id') == $comment->id_user || Session('acc_id') == $comment->id_user_creator) {
+                    echo "<button id='delcmt' data-id=$comment->id data-acc=".Session('acc_id')."  style='float: right; margin-left: 10px' class='btn btn-danger btn-sm'><i class='far fa-trash-alt'></i></button>";
+                }
+                echo "</dl>";
             }
-
-
-
-            echo "<div class='col-sm-12' style='margin-top: 20px'>
+            if (Session('acc_level') != -2 && Session('acc_level') != -3) {
+                echo "<div class='col-sm-12' style='margin-top: 20px'>
                 <form id='cmtform' method='post'>";
-            echo csrf_field();
-            echo "<input type='hidden' id='tp_id' name='id_topic' value='$id'></input>
+                echo csrf_field();
+                echo "<input type='hidden' id='tp_id' name='id_topic' value='$id'></input>
                 <input type='hidden' name='id_acc' value='$acc_id'></input>
                 <textarea id='cmt' name='comment' placeholder='Bình luận..' type='text' class='form-control' rows='3' autocomplete='off'></textarea>
                 <button type='button' id='btncmt' style='float: right;margin-top: 10px' class='btn btn-primary'>Gửi</button>
                 </div></form>";
+            }
         }
     }
 }
